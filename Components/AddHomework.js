@@ -1,5 +1,5 @@
 // Components/AddHomeWork.js
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -12,21 +12,26 @@ import {
   ScrollView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { Calendar } from 'react-native-calendars';
-import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {Calendar} from 'react-native-calendars';
+import {useSafeAreaInsets, SafeAreaView} from 'react-native-safe-area-context';
+import {launchImageLibrary} from 'react-native-image-picker';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const SUBJECT_HIGHLIGHT = '#FD8200';
-const GRADIENT         = ['#6E63FF', '#FF3CBD'];
-const INITIAL_SUBJECTS = ['History', 'Maths', 'English language', 'Physical Education'];
-const COLORS           = ['#FF3448', '#01BBEE', '#02EC50', '#FD8200'];
+const GRADIENT = ['#A544FF', '#01BBEE'];
+const INITIAL_SUBJECTS = [
+  'History',
+  'Maths',
+  'English language',
+  'Physical Education',
+];
+const COLORS = ['#FF3448', '#01BBEE', '#02EC50', '#FD8200'];
 
 const IconCalendar = require('../assets/calendar.png');
-const IconPlus     = require('../assets/plus.png');
+const IconPlus = require('../assets/plus.png');
 const DefaultPhoto = require('../assets/default.png');
 
-export default function AddHomeWork({ navigation, route }) {
+export default function AddHomeWork({navigation, route}) {
   /* ───── данные, пришедшие при редактировании ───── */
   const existing = route.params?.existingHomework ?? null;
 
@@ -34,13 +39,15 @@ export default function AddHomeWork({ navigation, route }) {
   const [step, setStep] = useState(existing ? 5 : 1);
 
   /* ────────────── Шаг 1: Subject ────────────── */
-  const [subject, setSubject]           = useState(existing?.subject ?? '');
+  const [subject, setSubject] = useState(existing?.subject ?? '');
   const [subjectsList, setSubjectsList] = useState(
     existing && !INITIAL_SUBJECTS.includes(existing.subject)
       ? [...INITIAL_SUBJECTS, existing.subject]
-      : INITIAL_SUBJECTS
+      : INITIAL_SUBJECTS,
   );
-  const [selectedSubject, setSelectedSubject] = useState(existing?.subject ?? null);
+  const [selectedSubject, setSelectedSubject] = useState(
+    existing?.subject ?? null,
+  );
   const addSubject = () => {
     const t = subject.trim();
     if (t && !subjectsList.includes(t)) {
@@ -50,9 +57,9 @@ export default function AddHomeWork({ navigation, route }) {
   };
 
   /* ────────────── Шаг 2: Tasks ────────────── */
-  const [tasks, setTasks]       = useState(existing?.tasks ?? []);
-  const [newTask, setNewTask]   = useState('');
-  const addTask    = () => {
+  const [tasks, setTasks] = useState(existing?.tasks ?? []);
+  const [newTask, setNewTask] = useState('');
+  const addTask = () => {
     const t = newTask.trim();
     if (t) {
       setTasks(prev => [...prev, t]);
@@ -62,9 +69,13 @@ export default function AddHomeWork({ navigation, route }) {
   const removeTask = idx => setTasks(prev => prev.filter((_, i) => i !== idx));
 
   /* ────────────── Шаг 3: Deadline & Color ────────────── */
-  const [deadlineDate, setDeadlineDate]   = useState(existing?.deadlineDate ?? '');
-  const [showDateCal, setShowDateCal]     = useState(false);
-  const [deadlineTime, setDeadlineTime]   = useState(existing?.deadlineTime ?? '');
+  const [deadlineDate, setDeadlineDate] = useState(
+    existing?.deadlineDate ?? '',
+  );
+  const [showDateCal, setShowDateCal] = useState(false);
+  const [deadlineTime, setDeadlineTime] = useState(
+    existing?.deadlineTime ?? '',
+  );
   const [selectedColor, setSelectedColor] = useState(existing?.color ?? null);
   const clearDeadlines = () => {
     setDeadlineDate('');
@@ -75,45 +86,49 @@ export default function AddHomeWork({ navigation, route }) {
   /* ────────────── Шаг 4: Photo ────────────── */
   const [photoUri, setPhotoUri] = useState(existing?.photo?.uri ?? null);
   const pickPhoto = () =>
-    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
+    launchImageLibrary({mediaType: 'photo', quality: 0.8}, res => {
       if (!res.didCancel && res.assets?.length) setPhotoUri(res.assets[0].uri);
     });
 
   /* ────────────── Finish ────────────── */
   const finish = () => {
-    const todayISO = new Date().toISOString().slice(0, 10);        // YYYY-MM-DD
+    const todayISO = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     let dateISO = todayISO;
     if (deadlineDate) {
-      const [dd, mm, yy] = deadlineDate.split('.');                // DD.MM.YY
-      dateISO = `20${yy}-${mm}-${dd}`;                             // YYYY-MM-DD
+      const [dd, mm, yy] = deadlineDate.split('.'); // DD.MM.YY
+      dateISO = `20${yy}-${mm}-${dd}`; // YYYY-MM-DD
     }
     const payload = {
-      id     : existing?.id ?? Date.now().toString(),
+      id: existing?.id ?? Date.now().toString(),
       subject: selectedSubject,
       tasks,
       deadlineDate,
       deadlineTime,
-      photo  : photoUri ? { uri: photoUri } : DefaultPhoto,
-      color  : selectedColor,
+      photo: photoUri ? {uri: photoUri} : DefaultPhoto,
+      color: selectedColor,
       dateISO,
-      reason : tasks[0] || '',
+      reason: tasks[0] || '',
     };
 
     navigation.navigate('Tabs', {
       screen: 'HomeTab',
-      params: existing ? { updatedHomework: payload }
-                       : {  newHomework   : payload },
+      params: existing ? {updatedHomework: payload} : {newHomework: payload},
     });
   };
 
   /* ────────────── Next-button доступность ────────────── */
   const canNext = () => {
     switch (step) {
-      case 1: return !!selectedSubject;
-      case 2: return tasks.length > 0;
-      case 3: return !!deadlineDate && !!deadlineTime && !!selectedColor;
-      case 4: return true;
-      default: return false;
+      case 1:
+        return !!selectedSubject;
+      case 2:
+        return tasks.length > 0;
+      case 3:
+        return !!deadlineDate && !!deadlineTime && !!selectedColor;
+      case 4:
+        return true;
+      default:
+        return false;
     }
   };
 
@@ -123,7 +138,7 @@ export default function AddHomeWork({ navigation, route }) {
       /* ---------- Step 1 ---------- */
       case 1: {
         const filtered = subjectsList.filter(s =>
-          s.toLowerCase().includes(subject.trim().toLowerCase())
+          s.toLowerCase().includes(subject.trim().toLowerCase()),
         );
         return (
           <>
@@ -148,9 +163,10 @@ export default function AddHomeWork({ navigation, route }) {
                     onPress={() => {
                       setSelectedSubject(s);
                       setSubject(s);
-                    }}
-                  >
-                    <Text style={sel ? styles.tagTextSel : styles.tagText}>{s}</Text>
+                    }}>
+                    <Text style={sel ? styles.tagTextSel : styles.tagText}>
+                      {s}
+                    </Text>
                   </TouchableOpacity>
                 );
               })}
@@ -186,10 +202,9 @@ export default function AddHomeWork({ navigation, route }) {
               onSubmitEditing={addTask}
             />
             <TouchableOpacity
-              style={[styles.addBtn, !newTask.trim() && { opacity: 0.5 }]}
+              style={[styles.addBtn, !newTask.trim() && {opacity: 0.5}]}
               disabled={!newTask.trim()}
-              onPress={addTask}
-            >
+              onPress={addTask}>
               <Image source={IconPlus} style={styles.plusIcon} />
             </TouchableOpacity>
           </>
@@ -202,10 +217,10 @@ export default function AddHomeWork({ navigation, route }) {
             <Text style={styles.title}>When is it due?</Text>
             <TouchableOpacity
               style={styles.input}
-              onPress={() => setShowDateCal(v => !v)}
-            >
+              onPress={() => setShowDateCal(v => !v)}>
               <Image source={IconCalendar} style={styles.inlineIcon} />
-              <Text style={deadlineDate ? styles.inputText : styles.placeholder}>
+              <Text
+                style={deadlineDate ? styles.inputText : styles.placeholder}>
                 {deadlineDate || 'DD.MM.YY'}
               </Text>
             </TouchableOpacity>
@@ -220,7 +235,7 @@ export default function AddHomeWork({ navigation, route }) {
               />
             )}
             <TextInput
-              style={[styles.input, { marginTop: 12 }]}
+              style={[styles.input, {marginTop: 12}]}
               placeholder="HH:mm"
               placeholderTextColor="#AAA"
               value={deadlineTime}
@@ -233,7 +248,10 @@ export default function AddHomeWork({ navigation, route }) {
                   key={c}
                   style={[
                     styles.colorDot,
-                    { borderColor: c, backgroundColor: selectedColor === c ? c : '#fff' },
+                    {
+                      borderColor: c,
+                      backgroundColor: selectedColor === c ? c : '#fff',
+                    },
                   ]}
                   onPress={() => setSelectedColor(c)}
                 />
@@ -252,7 +270,7 @@ export default function AddHomeWork({ navigation, route }) {
             <Text style={styles.title}>Add photo, if you need</Text>
             <TouchableOpacity style={styles.photoBox} onPress={pickPhoto}>
               {photoUri ? (
-                <Image source={{ uri: photoUri }} style={styles.photo} />
+                <Image source={{uri: photoUri}} style={styles.photo} />
               ) : (
                 <Image source={IconPlus} style={styles.plusIconLarge} />
               )}
@@ -264,10 +282,9 @@ export default function AddHomeWork({ navigation, route }) {
       case 5:
         return (
           <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingVertical: 24 }}
-            showsVerticalScrollIndicator={false}
-          >
+            style={{flex: 1}}
+            contentContainerStyle={{paddingVertical: 24}}
+            showsVerticalScrollIndicator={false}>
             <Text style={styles.title}>Confirm and edit if needed:</Text>
 
             {/* Subject */}
@@ -282,7 +299,7 @@ export default function AddHomeWork({ navigation, route }) {
             <View style={styles.tagRow}>
               {subjectsList
                 .filter(s =>
-                  s.toLowerCase().includes(subject.trim().toLowerCase())
+                  s.toLowerCase().includes(subject.trim().toLowerCase()),
                 )
                 .map(s => {
                   const sel = selectedSubject === s;
@@ -293,9 +310,10 @@ export default function AddHomeWork({ navigation, route }) {
                       onPress={() => {
                         setSelectedSubject(s);
                         setSubject(s);
-                      }}
-                    >
-                      <Text style={sel ? styles.tagTextSel : styles.tagText}>{s}</Text>
+                      }}>
+                      <Text style={sel ? styles.tagTextSel : styles.tagText}>
+                        {s}
+                      </Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -316,9 +334,9 @@ export default function AddHomeWork({ navigation, route }) {
                 </TouchableOpacity>
               </View>
             ))}
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <TextInput
-                style={[styles.input, { flex: 1 }]}
+                style={[styles.input, {flex: 1}]}
                 placeholder="Add new task"
                 placeholderTextColor="#AAA"
                 value={newTask}
@@ -328,12 +346,11 @@ export default function AddHomeWork({ navigation, route }) {
               <TouchableOpacity
                 style={[
                   styles.addBtn1,
-                  { marginLeft: 8 },
-                  !newTask.trim() && { opacity: 0.5 },
+                  {marginLeft: 8},
+                  !newTask.trim() && {opacity: 0.5},
                 ]}
                 disabled={!newTask.trim()}
-                onPress={addTask}
-              >
+                onPress={addTask}>
                 <Image source={IconPlus} style={styles.plusIcon2} />
               </TouchableOpacity>
             </View>
@@ -343,10 +360,10 @@ export default function AddHomeWork({ navigation, route }) {
             <TouchableOpacity
               style={styles.input}
               onPress={() => setShowDateCal(v => !v)}
-              activeOpacity={0.8}
-            >
+              activeOpacity={0.8}>
               <Image source={IconCalendar} style={styles.inlineIcon} />
-              <Text style={deadlineDate ? styles.inputText : styles.placeholder}>
+              <Text
+                style={deadlineDate ? styles.inputText : styles.placeholder}>
                 {deadlineDate || 'DD.MM.YY'}
               </Text>
             </TouchableOpacity>
@@ -361,7 +378,7 @@ export default function AddHomeWork({ navigation, route }) {
               />
             )}
             <TextInput
-              style={[styles.input, { marginTop: 12 }]}
+              style={[styles.input, {marginTop: 12}]}
               placeholder="HH:mm"
               placeholderTextColor="#AAA"
               value={deadlineTime}
@@ -391,11 +408,10 @@ export default function AddHomeWork({ navigation, route }) {
             {/* Photo */}
             <Text style={styles.sectionLabel}>Photo</Text>
             <TouchableOpacity
-              style={[styles.photoBox, { marginTop: 8 }]}
-              onPress={pickPhoto}
-            >
+              style={[styles.photoBox, {marginTop: 8}]}
+              onPress={pickPhoto}>
               {photoUri ? (
-                <Image source={{ uri: photoUri }} style={styles.photo} />
+                <Image source={{uri: photoUri}} style={styles.photo} />
               ) : (
                 <Image source={DefaultPhoto} style={styles.photo} />
               )}
@@ -407,16 +423,15 @@ export default function AddHomeWork({ navigation, route }) {
                 styles.nextBtn,
                 {
                   marginTop: 32,
-                  opacity:
-                    !(
-                      selectedSubject &&
-                      tasks.length &&
-                      deadlineDate &&
-                      deadlineTime &&
-                      selectedColor
-                    )
-                      ? 0.5
-                      : 1,
+                  opacity: !(
+                    selectedSubject &&
+                    tasks.length &&
+                    deadlineDate &&
+                    deadlineTime &&
+                    selectedColor
+                  )
+                    ? 0.5
+                    : 1,
                 },
               ]}
               disabled={
@@ -428,8 +443,7 @@ export default function AddHomeWork({ navigation, route }) {
                   selectedColor
                 )
               }
-              onPress={finish}
-            >
+              onPress={finish}>
               <Text style={styles.nextText}>Save</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -451,13 +465,13 @@ export default function AddHomeWork({ navigation, route }) {
       <LinearGradient colors={GRADIENT} style={styles.root}>
         <SafeAreaView
           edges={['left', 'right', 'bottom']}
-          style={[styles.safe, { paddingTop: insets.top }]}
-        >
+          style={[styles.safe, {paddingTop: insets.top}]}>
           {/* BACK */}
           <TouchableOpacity
             style={styles.backBtn}
-            onPress={() => (step > 1 ? setStep(step - 1) : navigation.goBack())}
-          >
+            onPress={() =>
+              step > 1 ? setStep(step - 1) : navigation.goBack()
+            }>
             <Text style={styles.backText}>‹ Back</Text>
           </TouchableOpacity>
 
@@ -468,16 +482,11 @@ export default function AddHomeWork({ navigation, route }) {
           {step < 5 && (
             <View style={styles.footer}>
               <TouchableOpacity
-                style={[styles.nextBtn, !canNext() && { opacity: 0.5 }]}
+                style={[styles.nextBtn, !canNext() && {opacity: 0.5}]}
                 disabled={!canNext()}
-                onPress={() => setStep(step + 1)}
-              >
+                onPress={() => setStep(step + 1)}>
                 <Text style={styles.nextText}>
-                  {step === 1
-                    ? 'Next step'
-                    : step < 4
-                    ? 'Next'
-                    : 'Review'}
+                  {step === 1 ? 'Next step' : step < 4 ? 'Next' : 'Review'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -492,18 +501,18 @@ export default function AddHomeWork({ navigation, route }) {
 const P = 24,
   R = 30;
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  safe: { flex: 1 },
+  root: {flex: 1},
+  safe: {flex: 1},
 
-  backBtn: { paddingHorizontal: P, paddingVertical: 8 },
-  backText: { color: '#fff', fontSize: 16 },
+  backBtn: {paddingHorizontal: P, paddingVertical: 8},
+  backText: {color: '#fff', fontSize: 16},
 
-  content: { flex: 1, paddingHorizontal: P },
+  content: {flex: 1, paddingHorizontal: P},
 
-  title: { color: '#fff', fontSize: 22, fontWeight: '700', marginTop: 16 },
-  sectionLabel: { color: '#fff', fontSize: 18, fontWeight: '600', marginTop: 24 },
-  linkBtn: { marginTop: 12 },
-  link: { color: '#fff', fontSize: 16, opacity: 0.8, textAlign: 'center' },
+  title: {color: '#fff', fontSize: 22, fontWeight: '700', marginTop: 16},
+  sectionLabel: {color: '#fff', fontSize: 18, fontWeight: '600', marginTop: 24},
+  linkBtn: {marginTop: 12},
+  link: {color: '#fff', fontSize: 16, opacity: 0.8, textAlign: 'center'},
 
   input: {
     flexDirection: 'row',
@@ -514,12 +523,17 @@ const styles = StyleSheet.create({
     height: 50,
     marginTop: 12,
   },
-  inputText: { flex: 1, fontSize: 16, color: '#333' },
-  placeholder: { flex: 1, fontSize: 16, color: '#AAA' },
-  inlineIcon: { width: 20, height: 20, marginRight: 12, tintColor: '#FF8200' },
-  calendar: { marginTop: 8, alignSelf: 'center', width: width - P * 2, borderRadius: 8 },
+  inputText: {flex: 1, fontSize: 16, color: '#333'},
+  placeholder: {flex: 1, fontSize: 16, color: '#AAA'},
+  inlineIcon: {width: 20, height: 20, marginRight: 12, tintColor: '#FF8200'},
+  calendar: {
+    marginTop: 8,
+    alignSelf: 'center',
+    width: width - P * 2,
+    borderRadius: 8,
+  },
 
-  tagRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 12 },
+  tagRow: {flexDirection: 'row', flexWrap: 'wrap', marginTop: 12},
   tag: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -534,8 +548,8 @@ const styles = StyleSheet.create({
     backgroundColor: SUBJECT_HIGHLIGHT,
     borderColor: SUBJECT_HIGHLIGHT,
   },
-  tagText: { color: '#333' },
-  tagTextSel: { color: '#fff' },
+  tagText: {color: '#333'},
+  tagTextSel: {color: '#fff'},
   tagDashed: {
     borderWidth: 1,
     borderStyle: 'dashed',
@@ -555,8 +569,8 @@ const styles = StyleSheet.create({
     marginTop: 12,
     justifyContent: 'space-between',
   },
-  taskText: { fontSize: 16, color: '#333' },
-  clearX: { fontSize: 18, color: '#AAA' },
+  taskText: {fontSize: 16, color: '#333'},
+  clearX: {fontSize: 18, color: '#AAA'},
 
   addBtn: {
     marginTop: 10,
@@ -577,11 +591,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  plusIcon: { width: 24, height: 24, tintColor: '#fff' },
-  plusIcon2: { width: 20, height: 20, tintColor: '#fff' },
-  plusIconLarge: { width: 40, height: 40, tintColor: '#6E63FF' },
+  plusIcon: {width: 24, height: 24, tintColor: '#fff'},
+  plusIcon2: {width: 20, height: 20, tintColor: '#fff'},
+  plusIconLarge: {width: 40, height: 40, tintColor: '#6E63FF'},
 
-  colorRow: { flexDirection: 'row', marginTop: 16 },
+  colorRow: {flexDirection: 'row', marginTop: 16},
   colorDot: {
     width: 38,
     height: 38,
@@ -598,9 +612,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  photo: { width: 120, height: 120, borderRadius: 20 },
+  photo: {width: 120, height: 120, borderRadius: 20},
 
-  footer: { padding: 24 },
+  footer: {padding: 24},
   nextBtn: {
     height: 50,
     borderRadius: 25,
@@ -608,5 +622,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  nextText: { fontSize: 16, fontWeight: '600', color: '#6E63FF' },
+  nextText: {fontSize: 16, fontWeight: '600', color: '#6E63FF'},
 });

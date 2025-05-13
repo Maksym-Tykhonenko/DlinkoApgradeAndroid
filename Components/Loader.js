@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
   View,
   Text,
@@ -10,18 +10,18 @@ import {
   Animated,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 /* ─── CONSTANTS ───────────────────────────────────────── */
-const { width, height } = Dimensions.get('window');
-const GRADIENT = ['#6E63FF', '#FF3CBD']; // violet → magenta
+const {width, height} = Dimensions.get('window');
+const GRADIENT = ['#A544FF', '#01BBEE']; // violet → magenta
 const TITLE_FONT = 48;
 
-const LOGO_SRC   = require('../assets/Logo.png');   // крупный логотип
-const LOADER_SRC = require('../assets/loader.png');  // круг‑стрелка 32×32
+const LOGO_SRC = require('../assets/Logo.png'); // крупный логотип
+const LOADER_SRC = require('../assets/loader.png'); // круг‑стрелка 32×32
 /* ─────────────────────────────────────────────────────── */
 
-export default function Loader({ onEnd }) {
+export default function Loader({onEnd}) {
   /* ─── ROTATING LOADER ──────────────────────────────── */
   const rotateAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -51,17 +51,21 @@ export default function Loader({ onEnd }) {
   return (
     <LinearGradient colors={GRADIENT} style={styles.container}>
       {Platform.OS === 'android' && (
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent
+        />
       )}
 
       <SafeAreaView style={styles.safe}>
         {/* Текстовый логотип */}
-        <Text style={styles.title}>Dlinko</Text>
+        <Text style={styles.title}>Rabbit Plunko</Text>
 
         {/* Крутящаяся иконка */}
         <Animated.Image
           source={LOADER_SRC}
-          style={[styles.loader, { transform: [{ rotate: spin }] }]}
+          style={[styles.loader, {transform: [{rotate: spin}]}]}
         />
 
         {/* Увеличенный графический логотип */}
@@ -73,7 +77,7 @@ export default function Loader({ onEnd }) {
 
 /* ─── STYLES ──────────────────────────────────────────── */
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {flex: 1},
   safe: {
     flex: 1,
     alignItems: 'center',
@@ -94,7 +98,7 @@ const styles = StyleSheet.create({
   logo: {
     position: 'absolute',
     bottom: 0,
-    width: width * 1.1,   // шире экрана для «увеличения»
+    width: width * 1.1, // шире экрана для «увеличения»
     height: height * 0.75, // выше, чем раньше
   },
 });
